@@ -1,2 +1,2 @@
 # kikoru
-A terminal based todo utility
+A command-line tool to manage Todos
