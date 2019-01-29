@@ -1,16 +1,38 @@
 #!/bin/bash
+# Title: Kikoru v0.1.0
+# Description: A command-line tool to manage Todos
+# Author: hirakJS
 
+dir="$HOME/.kikoru"
 filename="todos"
+fullpath=$dir/$filename
 done_filename="todos_done"
+done_fullpath=$dir/$done_filename
 
 int=[0-9]+$
 
+pushd () {
+  command pushd "$@" > /dev/null
+}
+
+popd () {
+  command popd "$@" > /dev/null
+}
+
+if [ ! -d $dir ]; then
+  mkdir $dir
+fi
+
 if [ ! -e $filename ]; then
+  pushd $dir
   touch $filename
+  popd
 fi
 
 if [ ! -e $done_filename ]; then
+  pushd $dir
   touch $done_filename
+  popd
 fi
 
 case $1 in
@@ -31,19 +53,18 @@ case $1 in
     echo "       --clean        Remove all todos."
     ;;
   -l | --list)
-    cat $filename
+    cat $fullpath
     ;;
   -ld)
-    cat $done_filename
+    cat $done_fullpath
     ;;
   -a | --add)
-    line_count=`cat $filename | wc -l`
-    echo $line_count
-    echo "`expr $line_count + 1` $2" >> $filename
+    line_count=`cat $fullpath | wc -l`
+    echo "`expr $line_count + 1` $2" >> $fullpath
     ;;
   -d | --done)
     if [[ $2 =~ $int ]]; then
-      grep "$2\s[.*]*" $filename > $done_filename && grep -v "$2\s[.*]*" $filename > "xyz.tmp" && mv "xyz.tmp" $filename
+      grep "$2\s[.*]*" $fullpath > $done_fullpath && grep -v "$2\s[.*]*" $fullpath > "xyz.tmp" && mv "xyz.tmp" $fullpath
     else
       echo "$0: $2 is not integer."
     fi
@@ -53,14 +74,14 @@ case $1 in
       echo "confirm (y/n) >> "
       read confirm
       if [ $confirm = "y" ]; then
-        grep -v "$2\s[.*]*" $filename > "xyz.tmp" && mv "xyz.tmp" $filename
+        grep -v "$2\s[.*]*" $fullpath > "xyz.tmp" && mv "xyz.tmp" $fullpath
       fi
     else
       echo "$0: $2 is not integer."
     fi
     ;;
   --clean)
-    > $filename
+    > $fullpath
     ;;
   *)
     echo "kikoru: invalid option -- '$1'"
